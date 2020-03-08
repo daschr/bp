@@ -33,8 +33,8 @@ void gen_midi_lookup(int table[]) {
 void play_midi(FILE *f) {
     size_t lsize=0;
     char *line=NULL;
-    float c1=0,c2=0,c3=0,dur=0;
-    int scfr=0;
+    double c1=0,c2=0,c3=0;
+
     int midi_lookup[127];
 
     gen_midi_lookup(midi_lookup);
@@ -45,12 +45,12 @@ void play_midi(FILE *f) {
     }
 
     while(getline(&line, &lsize, f)>-1) {
-        switch(sscanf(line, "%f %f %f", &c1, &c2, &c3)) {
+        switch(sscanf(line, "%lf %lf %lf", &c1, &c2, &c3)) {
         case 3:
             if(c1<127.0) // nice try
                 ioctl(console_fd, KIOCSOUND, midi_lookup[(int)c1]);
 #ifdef DEBUG
-            printf("Note:  %d Freq: %f dur: %d\n", (int) c1, midi_lookup[(int)c1], (int) ((c3-c2)*1000000));
+            printf("Note:  %d Freq: %d dur: %d\n", (int) c1, midi_lookup[(int)c1], (int) ((c3-c2)*1000000));
 #endif
             usleep((int) ((c3-c2) * 1000000));
             break;
