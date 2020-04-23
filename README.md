@@ -3,6 +3,7 @@ pronounced "beep", parses output of aubionotes (https://aubio.org/) to play musi
 
 ## compile
 `apt install make gcc libevent-dev`
+
 `make`
 
 ## usage
