@@ -33,7 +33,8 @@ void int_handler(int _) {
         close(console_fd);
     }
 
-    fclose(ff);
+    if(ff != NULL)
+        fclose(ff);
     free(line);
 
     exit(EXIT_SUCCESS);
