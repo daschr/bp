@@ -68,7 +68,7 @@ void play_midi(FILE *f) {
     }
 
     if(!is_ev && (console_fd = open(CONSOLE, O_WRONLY)) == -1) {
-        fprintf(stderr, "Could not open " CONSOLE " for writing.\n");
+        fprintf(stderr, "Could not open " PLATFORM_SPEAKER " (permissions?)\nor " CONSOLE " for writing.\n");
         if(f != stdin)
             fclose(f);
         exit(1);

@@ -13,5 +13,6 @@ or
 
 ## "It's not working!"
 
+* `chmod 662 /dev/input/by-path/platform-pcspkr-event-spkr`
 * `modprobe pcspkr`
 * do you even have a buzzer?
