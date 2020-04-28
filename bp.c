@@ -1,17 +1,18 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
 #include <math.h>
 #include <fcntl.h>
 #include <getopt.h>
+
 #include <signal.h>
-#include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
-#include <linux/kd.h>
-#include <string.h>
 
-#include <event.h>
+#include <linux/kd.h>
 #include <linux/input.h>
+#include <event.h>
 
 #define CLOCK_TICK_RATE 1193180.0
 #define NOTE_A 440.0
