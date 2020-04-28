@@ -55,13 +55,9 @@ void play_note(int n) {
         ioctl(console_fd, KIOCSOUND, (int) (CLOCK_TICK_RATE/n) );
 }
 
-void play_midi(FILE *f) {
+void play_midi(FILE *f, int *midi_lookup) {
     size_t lsize=0;
     double c1=0,c2=0,c3=0;
-
-    int midi_lookup[127];
-
-    gen_midi_lookup(midi_lookup);
 
     if((console_fd = open(PLATFORM_SPEAKER, O_WRONLY)) != -1 &&
             ioctl(console_fd, EVIOCGSND(0)) != -1) {
@@ -110,18 +106,27 @@ int main(int ac, char *as[]) {
     memset(&ev_inp, 0, sizeof(ev_inp));
     ev_inp.type = EV_SND;
     ev_inp.code = SND_TONE;
+
+    int midi_lookup[127];
+    gen_midi_lookup(midi_lookup);
+
     if(ac >1) {
+        int loop= ac >2 ? strcmp(as[2], "loop") : -1;
+
         ff=fopen(as[1], "r");
 
         if(ff==NULL) {
             fprintf(stderr, "could not open '%s' for reading!\n", as[1]);
             return EXIT_FAILURE;
         }
-        play_midi(ff);
+        do {
+            play_midi(ff, midi_lookup);
+            fseek(ff, 0, SEEK_SET);
+        } while(loop == 0);
 
         fclose(ff);
     } else {
-        play_midi(stdin);
+        play_midi(stdin, midi_lookup);
     }
     return EXIT_SUCCESS;
 }
