@@ -55,7 +55,7 @@ void play_note(int n) {
         ioctl(console_fd, KIOCSOUND, (int) (CLOCK_TICK_RATE/n) );
 }
 
-void play_midi(FILE *f, int *midi_lookup) {
+int play_midi(FILE *f, int *midi_lookup) {
     size_t lsize=0;
     double c1=0,c2=0,c3=0;
 
@@ -66,9 +66,7 @@ void play_midi(FILE *f, int *midi_lookup) {
 
     if(!is_ev && (console_fd = open(CONSOLE, O_WRONLY)) == -1) {
         fprintf(stderr, "Could not open " PLATFORM_SPEAKER " (permissions?)\nor " CONSOLE " for writing.\n");
-        if(f != stdin)
-            fclose(f);
-        exit(1);
+        return 0;
     }
 
     while(getline(&line, &lsize, f)>-1) {
@@ -76,26 +74,25 @@ void play_midi(FILE *f, int *midi_lookup) {
         case 3:
             if(c1<127.0) // nice try
                 play_note(midi_lookup[(int)c1]);
-#ifdef DEBUG
-            printf("Note:  %d Freq: %d dur: %d\n", (int) c1, midi_lookup[(int)c1], (int) ((c3-c2)*1000000));
-#endif
             usleep((int) ((c3-c2) * 1000000));
             break;
         case 1:
-#ifdef DEBUG
-            printf("Quiet dur: %d\n", (int)((c1-c3) *1000000));
-#endif
             play_note(0);
             usleep((int) ((c1-c3) * 1000000));
             break;
         }
     }
 
-    if(line)
+    if(line) {
         free(line);
+        line=NULL;
+    }
 
     play_note(0);
     close(console_fd);
+    console_fd=-1;
+
+    return 1;
 }
 
 int main(int ac, char *as[]) {
@@ -110,6 +107,8 @@ int main(int ac, char *as[]) {
     int midi_lookup[127];
     gen_midi_lookup(midi_lookup);
 
+    int ec=EXIT_SUCCESS;
+
     if(ac >1) {
         int loop= ac >2 ? strcmp(as[2], "loop") : -1;
 
@@ -119,14 +118,19 @@ int main(int ac, char *as[]) {
             fprintf(stderr, "could not open '%s' for reading!\n", as[1]);
             return EXIT_FAILURE;
         }
+
         do {
-            play_midi(ff, midi_lookup);
+            if(!play_midi(ff, midi_lookup)) {
+                ec=EXIT_FAILURE;
+                break;
+            }
             fseek(ff, 0, SEEK_SET);
         } while(loop == 0);
 
         fclose(ff);
     } else {
-        play_midi(stdin, midi_lookup);
+        ec=play_midi(stdin, midi_lookup) ? EXIT_SUCCESS : EXIT_FAILURE;
     }
-    return EXIT_SUCCESS;
+
+    return ec;
 }
