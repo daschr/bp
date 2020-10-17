@@ -43,7 +43,7 @@ void int_handler(int _) {
 
 //    http://subsynth.sourceforge.net/midinote2freq.html
 void gen_midi_lookup(int table[]) {
-    for(int x = 0; x < 127; ++x)
+    for(int x = 0; x < 128; ++x)
         table[x] = (int) ( ( (NOTE_A / 32.0) * pow(2.0, ((x - 9.0) / 12.0)) ) );
 }
 
@@ -104,7 +104,7 @@ int main(int ac, char *as[]) {
     ev_inp.type = EV_SND;
     ev_inp.code = SND_TONE;
 
-    int midi_lookup[127];
+    int midi_lookup[128];
     gen_midi_lookup(midi_lookup);
 
     int ec=EXIT_SUCCESS;
