@@ -72,7 +72,7 @@ int play_midi(FILE *f, int *midi_lookup) {
     while(getline(&line, &lsize, f)>-1) {
         switch(sscanf(line, "%lf %lf %lf", &c1, &c2, &c3)) {
         case 3:
-            if(c1<127.0) // nice try
+            if(c1<128.0) // nice try
                 play_note(midi_lookup[(int)c1]);
             usleep((int) ((c3-c2) * 1000000));
             break;
